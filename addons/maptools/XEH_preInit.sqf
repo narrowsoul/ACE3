@@ -4,7 +4,7 @@ ADDON = false;
 
 #include "XEH_PREP.hpp"
 
-x = {
+recomp = {
 #include "XEH_PREP.hpp"
 };
 

@@ -18,7 +18,13 @@
 
 params ["_theMap"];
 
+// if ((count GVAR(freeDrawingData)) == 3) then {
 
+// _theMap drawLine [(GVAR(freeDrawingData) select 1), (GVAR(freeDrawingData) select 2), [1,0,1,1]];
+// };
+
+
+// diag_log text format ["Markers %1", allMapMarkers];
 
 
 #define TEXTURE_WIDTH_IN_M           6205
@@ -72,6 +78,11 @@ if (GVAR(freedrawing)) then {
             systemChat "Left";
             _dist = ([_posTopLeft, _posBottomLeft, _pos] call _fnc_Distance);
             _pos = _pos vectorAdd ([_dist, (GVAR(mapTool_angle) - 90) ,0] call CBA_fnc_polar2vect);
+            if (GVAR(freeDrawingData) isEqualTo []) then {
+                GVAR(freeDrawingData) = ["left", _pos];
+            } else {
+                if ((GVAR(freeDrawingData) select 0) == "left") then {GVAR(freeDrawingData) set [2, _pos];};
+            };
             _screen = _theMap ctrlMapWorldToScreen _pos;
             setMousePosition _screen;
         };

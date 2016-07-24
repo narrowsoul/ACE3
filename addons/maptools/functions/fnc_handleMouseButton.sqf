@@ -17,16 +17,37 @@ _params params ["_control", "_button", "_screenPosX", "_screenPosY", "_shiftKey"
 TRACE_2("params",_dir,_params);
 
 
-
-if (_ctrlKey) exitWith {
-    if (GVAR(freedrawing)) then {
-        TRACE_2("ending",GVAR(freedrawing));
+if (_ctrlKey && {_button == 0}) exitWith {
+    if (GVAR(freedrawing) && {_dir == 0}) then {
         GVAR(freedrawing) = false;
-    } else {
+        GVAR(drawPosEnd) = _control ctrlMapScreenToWorld [_screenPosX, _screenPosY];
+        TRACE_2("ending",GVAR(freedrawing),GVAR(drawPosEnd));
+        [{
+            diag_log text format ["MarkerPos %1=%2", getMarkerPos (allMapMarkers select (count allMapMarkers - 1)), GVAR(drawPosStart) distance2d (getMarkerPos (allMapMarkers select (count allMapMarkers - 1)))];
+            if ((count GVAR(freeDrawingData)) != 3) exitWith {};
+            GVAR(freeDrawingData) params ["", "_startPos", "_endPos"];
+            _name = (allMapMarkers select (count allMapMarkers - 1));
+            _name setMarkerShape "RECTANGLE";
 
-        GVAR(freedrawing) = true;
-        TRACE_2("starting",GVAR(freedrawing));
-        // setMousePosition [0.5, 0.5];
+            _startPos set [2, 0];
+            _endPos set [2, 0];
+            _difPos = _endPos vectorDiff _startPos;
+            _mag = vectorMagnitude _difPos;
+            _name setMarkerPos (_startPos vectorAdd (_difPos vectorMultiply 0.5));
+            _name setMarkerSize [5, _mag / 2];
+            _name setMarkerDir (180 + (_difPos select 0) atan2 (_difPos select 1) mod 360);
+
+
+            // _name setMarkerShape "POLYLINE";
+
+        }, []] call CBA_fnc_execNextFrame;
+    } else {
+        if (_dir == 1) then {
+            GVAR(freeDrawingData) = [];
+            GVAR(freedrawing) = true;
+            GVAR(drawPosStart) = _control ctrlMapScreenToWorld [_screenPosX, _screenPosY];
+            TRACE_2("starting",GVAR(freedrawing),GVAR(drawPosStart));
+        };
     };
 };
 
@@ -65,9 +86,9 @@ if (_dir != 1) then {
         GVAR(mapTool_startDragPos) = + _pos;
 
         private _rotateKeyPressed = switch (GVAR(rotateModifierKey)) do {
-            case (1): {_altKey};
-            case (2): {_ctrlKey};
-            case (3): {_shiftKey};
+        case (1): {_altKey};
+        case (2): {_ctrlKey};
+        case (3): {_shiftKey};
             default {false};
         };
 

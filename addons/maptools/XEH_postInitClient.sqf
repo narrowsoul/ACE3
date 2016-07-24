@@ -33,5 +33,7 @@ GVAR(mapTool_isRotating) = false;
     };
 }] call CBA_fnc_addPlayerEventHandler;
 
+
+GVAR(freeDrawingData) = [];
 GVAR(freedrawing) = false;
 
